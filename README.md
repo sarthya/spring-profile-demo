@@ -10,4 +10,4 @@ springboot will understand it as default profile
 
 ## Configure IDE as below:
 
-![sample example screeshot](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![sample example screeshot](https://github.com/sarthya/spring-profile-demo/blob/master/src/main/resources/profile_selection.JPG)
