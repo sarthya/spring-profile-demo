@@ -1,0 +1,76 @@
+package com.sample.demo;
+
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+public class DailyTask {
+
+    public static void main(String[] args) {
+        ZoneId istZone = ZoneId.of("Asia/Kolkata"); // IST time zone
+        ZonedDateTime now = ZonedDateTime.now(istZone);
+
+        ZonedDateTime targetStartTime = now.withHour(16).withMinute(24).withSecond(0).withNano(0);
+        ZonedDateTime targetStopTime = now.withHour(16).withMinute(25).withSecond(0).withNano(0);
+
+        // If target time is already past, schedule for tomorrow at 5 PM
+        if (now.isAfter(targetStartTime)) {
+            targetStartTime = targetStartTime.plusDays(1);
+        }
+
+        if (now.isAfter(targetStopTime)) {
+            targetStopTime = targetStopTime.plusDays(1);
+        }
+
+
+        long period = 24 * 60 * 60 * 100;
+
+        long initialStartDelay = targetStartTime.toInstant().toEpochMilli() - now.toInstant().toEpochMilli();
+        long initialStopDelay = targetStopTime.toInstant().toEpochMilli() - now.toInstant().toEpochMilli();
+
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        Runnable task = () -> {
+            System.out.println("Thread started at 5 PM!");
+            // Your task logic here
+        };
+        scheduler.scheduleAtFixedRate(task, initialStartDelay, period, TimeUnit.MILLISECONDS);
+
+
+        Runnable stopSchedulerTask = () -> {
+            System.out.println("Stopping scheduler at: " + LocalTime.now());
+            scheduler.shutdown();
+        };
+        scheduler.scheduleAtFixedRate(stopSchedulerTask, initialStopDelay, period, TimeUnit.MILLISECONDS);
+
+
+//        scheduler.shutdown();
+    }
+
+
+    /* Spring boot code
+
+    import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+@Component
+public class MyScheduler {
+
+    @Scheduled(cron = "0 0 17 * * *", zone = "Asia/Kolkata")
+    public void runTask() {
+        // Create a new thread and start it
+        new Thread(() -> {
+            // Your task logic here
+            System.out.println("Task executed at 5 PM IST!");
+        }).start();
+    }
+}
+     */
+
+}
